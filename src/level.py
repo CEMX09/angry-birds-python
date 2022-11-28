@@ -1,6 +1,9 @@
 from characters import Pig
-from polygon import Polygon
+from characters import KingPig
 
+from polygon import Polygon
+import pygame
+running = True
 
 class Level():
     def __init__(self, pigs, columns, beams, space):
@@ -58,11 +61,16 @@ class Level():
 
     def build_0(self):
         """level 0"""
+
         pig1 = Pig(980, 100, self.space)
         pig2 = Pig(985, 182, self.space)
+        pig3 = KingPig(700, 100, self.space)
         self.pigs.append(pig1)
         self.pigs.append(pig2)
+        self.pigs.append(pig3)
         p = (950, 80)
+        self.columns.append(Polygon(p, 20, 85, self.space))
+        p = (600, 80)
         self.columns.append(Polygon(p, 20, 85, self.space))
         p = (1010, 80)
         self.columns.append(Polygon(p, 20, 85, self.space))

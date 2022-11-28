@@ -49,6 +49,7 @@ running = True
 space = pm.Space()
 space.gravity = (0.0, -700.0)
 pigs = []
+kingpigs = []
 birds = []
 balls = []
 polys = []
@@ -87,6 +88,8 @@ wall = False
 static_body = pm.Body(body_type=pm.Body.STATIC)
 static_lines = [pm.Segment(static_body, (0.0, 060.0), (1200.0, 060.0), 0.0)]
 static_lines1 = [pm.Segment(static_body, (1200.0, 060.0), (1200.0, 800.0), 0.0)]
+static_lines2 = [pm.Segment(static_body, (0.0, 060.0), (1200.0, 060.0), 0.0)]
+
 for line in static_lines:
     line.elasticity = 0.95
     line.friction = 1
@@ -95,6 +98,10 @@ for line in static_lines1:
     line.elasticity = 0.95
     line.friction = 1
     line.collision_type = 3
+    for line in static_lines2:
+        line.elasticity = 0.95
+        line.friction = 1
+        line.collision_type = 3
 space.add(static_body)
 for line in static_lines:
     space.add(line)
@@ -343,9 +350,11 @@ while running:
         elif event.type == pygame.KEYDOWN and event.key == pygame.K_s:
             space.gravity = (0.0, -10.0)
             level.bool_space = True
+
         elif event.type == pygame.KEYDOWN and event.key == pygame.K_n:
             space.gravity = (0.0, -700.0)
             level.bool_space = False
+
         if (pygame.mouse.get_pressed()[0] and x_mouse > 100 and
                 x_mouse < 250 and y_mouse > 370 and y_mouse < 550):
             mouse_pressed = True
@@ -369,18 +378,24 @@ while running:
                 if level.number_of_birds == 0:
                     t2 = time.time()
         if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+            # 마우스 클릭 버튼 이벤트
             if (x_mouse < 60 and y_mouse < 155 and y_mouse > 90):
                 game_state = 1
             if game_state == 1:
                 if x_mouse > 500 and y_mouse > 200 and y_mouse < 300:
-                    # Resume in the paused screen
+                    # 일시정지된 화면에서 현시점부터 재개
                     game_state = 0
                 if x_mouse > 500 and y_mouse > 300:
-                    # Restart in the paused screen
+                    # 일시정지된 화면에서 현재단계 다시시작
                     restart()
                     level.load_level()
                     game_state = 0
                     bird_path = []
+                if x_mouse > 480 and y_mouse >400:
+                    # 일시정지된 화면에서 다음단계
+                    restart()
+                    level.number += 1
+                    game_state = 4
             if game_state == 3:
                 # Restart in the failed level screen
                 if x_mouse > 500 and x_mouse < 620 and y_mouse > 450:
@@ -389,9 +404,10 @@ while running:
                     game_state = 0
                     bird_path = []
                     score = 0
+
             if game_state == 4:
-                # Build next level
-                if x_mouse > 610 and y_mouse > 450:
+                # 클리어한 후 다음 단계 버튼
+                if x_mouse > 610 and y_mouse > 450 :
                     restart()
                     level.number += 1
                     game_state = 0
@@ -399,8 +415,17 @@ while running:
                     score = 0
                     bird_path = []
                     bonus_score_once = True
+                if x_mouse > 480 and y_mouse > 400:
+                    # 클리어하지 않고 다음단계 버튼
+                        restart()
+                        level.number += 1
+                        game_state = 0
+                        level.load_level()
+                        score = 0
+                        bird_path = []
+                        bonus_score_once = True
                 if x_mouse < 610 and x_mouse > 500 and y_mouse > 450:
-                    # Restart in the level cleared screen
+                    # 클리어한 후 현재단계 다시시작 버튼
                     restart()
                     level.load_level()
                     game_state = 0
@@ -467,7 +492,7 @@ while running:
         pygame.draw.lines(screen, (150, 150, 150), False, [p1, p2])
     i = 0
     # Draw pigs
-    for pig in pigs:
+    for pig in kingpigs:
         i += 1
         # print (i,pig.life)
         pig = pig.shape
@@ -479,11 +504,31 @@ while running:
 
         angle_degrees = math.degrees(pig.body.angle)
         img = pygame.transform.rotate(pig_image, angle_degrees)
+        w, h = img.get_size()
+        x -= w * 0.5
+        y -= h * 0.5
+        screen.blit(img, (x, y))
+        pygame.draw.circle(screen, BLUE, p, int(pig.radius), 2)
+
+    for pig in pigs:
+        i += 1
+        # print (i,pig.life)
+        pig = pig.shape
+        if pig.body.position.y < 0:
+            pigs_to_remove.append(pig)
+
+        p = to_pygame(pig.body.position)
+        x, y = p
+
+        angle_degrees = math.degrees(pig.body.angle)
+        img = pygame.transform.rotate(king_pig, angle_degrees)
         w,h = img.get_size()
         x -= w*0.5
         y -= h*0.5
         screen.blit(img, (x, y))
         pygame.draw.circle(screen, BLUE, p, int(pig.radius), 2)
+
+
     # Draw columns and Beams
     for column in columns:
         column.draw_poly('columns', screen)
@@ -500,6 +545,9 @@ while running:
     score_font = bold_font.render("SCORE", 1, WHITE)
     number_font = bold_font.render(str(score), 1, WHITE)
     screen.blit(score_font, (1060, 90))
+
+
+
     if score == 0:
         screen.blit(number_font, (1100, 130))
     else:
@@ -509,6 +557,7 @@ while running:
     if game_state == 1:
         screen.blit(play_button, (500, 200))
         screen.blit(replay_button, (500, 300))
+        screen.blit(next_button, (487, 400))
     draw_level_cleared()
     draw_level_failed()
     pygame.display.flip()
