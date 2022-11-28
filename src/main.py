@@ -19,6 +19,8 @@ sling_image = pygame.image.load(
     "../resources/images/sling-3.png").convert_alpha()
 full_sprite = pygame.image.load(
     "../resources/images/full-sprite.png").convert_alpha()
+king_pig = pygame.image.load(
+    "../resources/images/kingpig01.png").convert_alpha()
 rect = pygame.Rect(181, 1050, 50, 50)
 cropped = full_sprite.subsurface(rect).copy()
 pig_image = pygame.transform.scale(cropped, (30, 30))
