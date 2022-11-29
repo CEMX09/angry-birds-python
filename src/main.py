@@ -531,6 +531,7 @@ while running:
         pygame.draw.circle(screen, BLUE, p, int(pig.radius), 2)
 
 
+
     # Draw columns and Beams
     for column in columns:
         column.draw_poly('columns', screen)
