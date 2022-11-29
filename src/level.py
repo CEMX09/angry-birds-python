@@ -89,6 +89,8 @@ class Level():
         self.two_star = 40000
         self.three_star = 60000
 
+
+
     def build_1(self):
         """level 1"""
         pig = Pig(1000, 100, self.space)

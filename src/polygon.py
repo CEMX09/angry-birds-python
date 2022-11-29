@@ -56,3 +56,4 @@ class Polygon():
             p = p - offset
             np = p
             screen.blit(rotated_logo_img, (np.x, np.y))
+

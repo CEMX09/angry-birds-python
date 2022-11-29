@@ -532,6 +532,8 @@ while running:
 
 
 
+
+
     # Draw columns and Beams
     for column in columns:
         column.draw_poly('columns', screen)
